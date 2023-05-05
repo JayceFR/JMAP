@@ -1,4 +1,8 @@
 import pygame
+import tkinter as tk
+from tkinter.filedialog import askopenfilename
+tk.Tk().withdraw()
+
 
 import tiles as t
 
@@ -106,6 +110,9 @@ while run:
                 scroll[1] += 64
             if event.key == pygame.K_s:
                 save(tiles)
+            if event.key == pygame.K_o:
+                fn = askopenfilename()
+                print("user chose", fn)
     for tile in tiles:
         tile.draw(screen, scroll)
     pygame.draw.polygon(screen, (0,0,0), [[0,0], [130,0], [130,600], [0,600]])
