@@ -1,6 +1,7 @@
 import pygame
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
+import os
 tk.Tk().withdraw()
 
 
@@ -12,6 +13,9 @@ s_height = 600
 screen = pygame.display.set_mode((s_width,s_height))
 pygame.display.set_caption("JMAP")
 
+
+tile_count = len(os.listdir('./Tiles'))
+print("Tiles found ", tile_count)
 
 #Helper subroutines
 
@@ -30,7 +34,7 @@ def id_dhedho(tiles, check_x, check_y):
             return tile.get_id()
     return 0
 
-def save(tiles, CELLSIZE):
+def save(tiles, CELLSIZE, list_of_available_signs):
     min = [0,0]
     max = [0,0]
     for tile in tiles:
@@ -46,44 +50,35 @@ def save(tiles, CELLSIZE):
     while min[1] <= max[1]:
         start = min[0]
         while start <= max[0]:
-            map_text += str(id_dhedho(tiles, start, min[1]))
+            id_of_tile = id_dhedho(tiles, start, min[1])
+            if id_of_tile != 0:
+                map_text += list_of_available_signs[id_of_tile-1]
+            else:
+                map_text += "0"
             start += CELLSIZE
         map_text += "\n"
         min[1] += CELLSIZE
     return map_text
 
-def load(data, CELLSIZE):
+def load(data, CELLSIZE, list_of_available_signs):
     tiles = []
     row = data.split("\n")
     y = 0
     for r in row:
         x = 0
         for element in r:
-            if element == "1":
-                add(tiles, (x,y), tile_imgs, scroll, 0)
-            if element == "2":
-                add(tiles, (x,y), tile_imgs, scroll, 1)
-            if element == "3":
-                add(tiles, (x,y), tile_imgs, scroll, 2)
-            if element == "4":
-                add(tiles, (x,y), tile_imgs, scroll, 3)
-            if element == "5":
-                add(tiles, (x,y), tile_imgs, scroll, 4)
-            if element == "6":
-                add(tiles, (x,y), tile_imgs, scroll, 5)
-            if element == "7":
-                add(tiles, (x,y), tile_imgs, scroll, 6)
-            if element == "8":
-                add(tiles, (x,y), tile_imgs, scroll, 7)
-            if element == "9":
-                add(tiles, (x,y), tile_imgs, scroll, 8)
+            posid = 0
+            while posid < len(list_of_available_signs) and list_of_available_signs[posid] != element:
+                posid += 1
+            if posid < len(list_of_available_signs):
+                add(tiles, (x,y), tile_imgs, scroll, posid)
             x += CELLSIZE
         y += CELLSIZE
     return tiles
 
-def load_tile_imgs(CELLSIZE):
+def load_tile_imgs(CELLSIZE, tile_count):
     tile_imgs = []
-    for x in range(9):
+    for x in range(tile_count):
         curr_tile = pygame.image.load("./Tiles/tile" + str(x+1) + ".png").convert_alpha()
         curr_tile = pygame.transform.scale(curr_tile, (CELLSIZE, CELLSIZE))
         tile_imgs.append(curr_tile)
@@ -97,7 +92,7 @@ CELLSIZE = 32
 #Test tiles
 tile_logo_imgs = []
 tile_imgs = []
-for x in range(9):
+for x in range(tile_count):
     curr_tile = pygame.image.load("./Tiles/tile" + str(x+1) + ".png").convert_alpha()
     curr_tile = pygame.transform.scale(curr_tile, (CELLSIZE, CELLSIZE))
     tile_imgs.append(curr_tile)
@@ -118,6 +113,8 @@ inventory_pos = -1
 
 hover_pos = -1
 
+list_of_available_signs = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "!", "@", "#", "$", "%", "^", "&", "*", "-", "+", ":", ";", "<", ">", "/", "~"]
+print("Max Limit Of Tiles -> ", len(list_of_available_signs))
 run = True
 while run:
     clock.tick(60)
@@ -128,7 +125,7 @@ while run:
         f = open(file_loc, "r")
         data = f.read()
         f.close()
-        tiles = load(data, CELLSIZE)
+        tiles = load(data, CELLSIZE, list_of_available_signs)
         open_file = False
     for x in range((s_width//CELLSIZE)+1):
         pygame.draw.line(screen, (255,255,255), (left,0), (left,600))
@@ -159,20 +156,20 @@ while run:
             if event.key == pygame.K_DOWN:
                 scroll[1] += CELLSIZE
             if event.key == pygame.K_s:
-                print(save(tiles, CELLSIZE))
+                print(save(tiles, CELLSIZE, list_of_available_signs))
             if event.key == 61:
-                data = save(tiles, CELLSIZE)
+                data = save(tiles, CELLSIZE, list_of_available_signs)
                 CELLSIZE += 16
-                tile_imgs = load_tile_imgs(CELLSIZE)
+                tile_imgs = load_tile_imgs(CELLSIZE, tile_count)
                 refresh(tiles, tile_imgs)
-                tiles = load(data, CELLSIZE)
+                tiles = load(data, CELLSIZE, list_of_available_signs)
             if event.key == pygame.K_MINUS:
-                data = save(tiles, CELLSIZE)
+                data = save(tiles, CELLSIZE, list_of_available_signs)
                 if CELLSIZE > 16:
                     CELLSIZE -= 16
-                tile_imgs = load_tile_imgs(CELLSIZE)
+                tile_imgs = load_tile_imgs(CELLSIZE, tile_count)
                 refresh(tiles, tile_imgs)
-                tiles = load(data, CELLSIZE)
+                tiles = load(data, CELLSIZE, list_of_available_signs)
             if event.key == pygame.K_t:
                 print(len(tiles))
             if event.key == pygame.K_o:
