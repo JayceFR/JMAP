@@ -113,7 +113,7 @@ inventory_pos = -1
 
 hover_pos = -1
 
-list_of_available_signs = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "!", "@", "#", "$", "%", "^", "&", "*", "-", "+", ":", ";", "<", ">", "/", "~"]
+list_of_available_signs = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "!", "@", "#", "$", "%", "^", "&", "*", "-", "+", ":", ";", "<", ">", "/", "~", "|"]
 print("Max Limit Of Tiles -> ", len(list_of_available_signs))
 run = True
 while run:
